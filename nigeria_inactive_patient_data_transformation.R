@@ -20,6 +20,7 @@ library(plyr)
 library(readxl)
 library(writexl)
 library(openxlsx)
+library(excel.link)
 
 
 rm(list = ls())
@@ -28,17 +29,37 @@ rm(list = ls())
 date <- Sys.Date()
 time <- Sys.time()
 
+
+# - Unprotect Partner reports ------------- #
+# ----------------------------------------- #
+#setwd("C:/Users/qlx6/OneDrive - CDC/Inactive Patient Tracking Dashboard/partner_reports/ccfn/partner_reports_locked")
+
+
+#filename <- "CCFN_LTFUTrackingToolV2_2022-03-07_CCFNreport.xlsx"
+#xl.workbook.open(filename, password = "ccfn7965")
+
+
+# ----------------------------------------- #
+# ----------------------------------------- #
+
+
+
+
+
+
+
 ip <- "CCFN"
+pull <- c("", "", "")
 
 
 ptm <- proc.time()
 # Set directory where you the IP reports are saved
 setwd("C:/Users/qlx6/OneDrive - CDC/Inactive Patient Tracking Dashboard/partner_reports/ccfn")
 
-ccfn.list <- list.files(pattern='*.xlsx')
-ccfn.list
+all.list <- list.files(pattern='*.xlsx')
+all.list
 
-ccfn <- lapply(ccfn.list, function(i){
+all <- lapply(all.list, function(i){
   x = read_excel(i, sheet = 1)
   x$file = i
   x
@@ -47,10 +68,9 @@ ccfn <- lapply(ccfn.list, function(i){
 #ccfn[[2]]
 #ccfn[[3]]
 #ccfn[[4]]
-ccfn <- do.call("rbind.data.frame", ccfn)
+all <- do.call("rbind.data.frame", all)
 
-all <- ccfn
-rm(ccfn)
+
 # ==== Switch vector here ==== #
 ################################
 all$NDR_PID <- na.omit(all$NDR_PID) # remove rows with NA in NDR_PID
@@ -196,7 +216,7 @@ all$ART_TIME <- revalue(all$ART_TIME, c("2 - 4 weeks" = "2-4 weeks",
                                         "1 - 3 months" = "1-3 Months",
                                         "2 - 4 months" = "2-4 Months",
                                         "4 - 6 months" = "4-6 Months",
-                                        #                                        "6" = "> 6 Months",
+                                        #"6" = "> 6 Months",
                                         "0" = "Unknown",
                                         "1" = "Unknown"))
 all$ART_TIME[which(is.na(all$ART_TIME))] <- "Unknown"
@@ -207,7 +227,7 @@ all$ART_START <- revalue(all$ART_START, c("NA" = "",
                                           "1 - 3 months" = "1-3 Months",
                                           "2 - 4 months" = "2-4 Months",
                                           "4 - 6 months" = "4-6 Months",
-                                          #                                        "6" = "> 6 Months",
+                                          #"6" = "> 6 Months",
                                           "0" = "Unknown",
                                           "1" = "Unknown"))
 all$ART_TIME[which(is.na(all$ART_TIME))] <- "Unknown"
@@ -378,7 +398,7 @@ all <- all %>%
 # === REACHED CATEGORIES === #
 ##############################
 
-##################################################################################
+#################################
 # ==== REACHED_Y_RETURN ==== #
 all <- all %>%
   mutate(REACHED_Y_RETURN = if_else(
@@ -533,16 +553,61 @@ d
 #  mutate(NEW_LTFU_IIT = sample(0:1, 1, replace=TRUE)) # New patients IIT in this report
 # A comparison between this new and previous
 
-new_LTFU <- read_csv(file = "C:/Users/qlx6/OneDrive - CDC/Inactive Patient Tracking Dashboard/partner_reports/ltfu_data.csv")
+setwd("C:/Users/qlx6/OneDrive - CDC/Inactive Patient Tracking Dashboard/partner_reports/ccfn/continued")
+new_inactive <- read_excel("Continue_LTFU_2022-03-08.xlsx")
 
-all <- left_join(all, 
-                 ltfu_data, 
-                 by = "INACTIVE_PID") 
-
-# ======================================================================== #
+new_inactive_0 <- new_inactive %>% 
+  filter(IMPLEMENTING_PARTNER %in% c("CCFN"))
 
 
+new_inactive_1 <- new_inactive_0 %>% 
+  mutate(PREFIX = "I_PID")
+
+new_inactive_2 <- new_inactive_1 %>% 
+  unite(INACTIVE_PID, PREFIX, NDR_PID, SITE_PID, sep = "_")
+
+new_inactive_3 <- new_inactive_2 %>% 
+  select(INACTIVE_PID, NEW_INACTIVE, DATA_PULL)
+
+new_inactive_4 <- left_join(all, new_inactive_3, 
+                            by = "INACTIVE_PID") %>% 
+  dplyr::rename(DATA_PULL = DATA_PULL.x, 
+                NEW_INACTIVE = NEW_INACTIVE.x) %>% 
+  dplyr::select(INACTIVE_PID:NEW_INACTIVE.y)
+
+new_inactive_5 <- new_inactive_4 %>% 
+  mutate(LiH_New = if_else(
+    LOST_HMIS == 1 & 
+      NEW_INACTIVE == 1, 1, 0))
+
+new_inactive_6 <- new_inactive_5 %>% 
+  mutate(IIT_New = if_else(
+    IIT == 1 & 
+      NEW_INACTIVE == 1, 1, 0))
+
+new_inactive_7 <- new_inactive_6 %>% 
+  select(FACILITY_UID,
+         SEX, FINE_AGE, DATA_PULL, IMPLEMENTING_PARTNER, STATE, LGA, FACILITY_NAME,
+         ART_TIME, INACTIVE_TIME, INACTIVE_PID, LOST_HMIS, IIT, HMIS_INCOMPLETE_EMR,
+         HMIS_NDR_UNSUCCSSFUL_UPLOAD, HMIS_NDR_DUPLICATES, HMIS_OTHER, HMIS_BLANK,
+         `ART_TIME: < 3 months`, `ART_TIME: + 3 months`, REACHED_Y_RETURN, REACHED_Y_REFUSE,
+         REACHED_Y_DIED, REACHED_Y_TRANSFER, REACHED_Y_NOENTRY, REACHED_Y, REACHED_N,
+         NOT_REACHED_tracking_ongoing, NOT_REACHED_no_phone_address, NOT_REACHED_inaccurate_phone_address,
+         NOT_REACHED_no_uid, NOT_REACHED_other, NOT_REACHED_NoEntry, IIT_TRACKED_Y, IIT_TRACKED_N,
+         LiH_New, IIT_New, UNRESOLVED_LiH, UNRESOLVED_IIT
+  )
+
+# Wrote the file here to QC. At this point, dataset is still at patient level
+write.csv(new_inactive_7, file = "test_real.csv") 
+# =================================================== #
+
+
+
+
+# =================================================== #
 # ======= Collapse into Facility-Level dataset======= #
+# =================================================== #
+
 all <- all %>%
   select(INACTIVE_PID:FINE_AGE, DATA_PULL, IMPLEMENTING_PARTNER:INACTIVE_SUBSET,
          `ART_TIME: < 3 months`, `ART_TIME: + 3 months`,
