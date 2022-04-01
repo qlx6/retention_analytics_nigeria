@@ -29,8 +29,35 @@ rm(list = ls())
 date <- Sys.Date()
 time <- Sys.time()
 
+<<<<<<< HEAD
+=======
+
+# - Unprotect Partner reports ------------- #
+# ----------------------------------------- #
+#setwd("C:/Users/qlx6/OneDrive - CDC/Inactive Patient Tracking Dashboard/partner_reports/ccfn/partner_reports_locked")
+
+
+#filename <- "CCFN_LTFUTrackingToolV2_2022-03-07_CCFNreport.xlsx"
+#xl.workbook.open(filename, password = "ccfn7965")
+
+
+# ----------------------------------------- #
+# ----------------------------------------- #
+
+
+
+
+
+
+
+ip <- "CCFN"
+pull <- c("", "", "")
+
+
+>>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
 ptm <- proc.time()
 
+<<<<<<< HEAD
 # - Set directory where you the new IP reports are saved - #
 # -------------------------------------------------------- #
 #setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/1_APIN")
@@ -65,13 +92,25 @@ report_sheets <- function(fname){
 all.list <- list.files(pattern = '*.xlsx')
 all.list
 
+=======
+all.list <- list.files(pattern='*.xlsx')
+all.list
+
+>>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
 all <- lapply(all.list, function(i){
   x = read_excel(i, sheet = 1)
   x$file = i
   x
 })
+<<<<<<< HEAD
  
 
+=======
+#ccfn[[1]]
+#ccfn[[2]]
+#ccfn[[3]]
+#ccfn[[4]]
+>>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
 all <- do.call("rbind.data.frame", all)
 
 
@@ -548,10 +587,15 @@ d
 # ======= Here is where we incorporate the New_LTFU_LiH to dataset ======= #
 # ======================================================================== #
 
+<<<<<<< HEAD
 # - A comparison between this new and previous --------------------------- #
 # - Change this directory to the directory with the continue_LTFU dataset for the appropriate IP -- #
 setwd("C:/Users/qlx6/OneDrive - CDC/Inactive Patient Tracking Dashboard/partner_reports/ccfn/continued") 
 new_inactive <- read_excel("Continue_LTFU_2022-03-08.xlsx")
+=======
+setwd("C:/Users/qlx6/OneDrive - CDC/Inactive Patient Tracking Dashboard/partner_reports/ccfn/continued")
+new_inactive <- read_excel("Continue_LTFU_2022-01-24 - Copy.xlsx")
+>>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
 
 new_inactive_0 <- new_inactive %>% 
   filter(IMPLEMENTING_PARTNER %in% c("CCFN"))
@@ -583,19 +627,43 @@ new_inactive_6 <- new_inactive_5 %>%
       NEW_INACTIVE == 1, 1, 0))
 
 new_inactive_7 <- new_inactive_6 %>% 
+<<<<<<< HEAD
   select(INACTIVE_PID:FINE_AGE, DATA_PULL, IMPLEMENTING_PARTNER:INACTIVE_SUBSET,
          `ART_TIME: < 3 months`, `ART_TIME: + 3 months`, REACHED_Y_RETURN:REACHED_Y_N, LiH_New, IIT_New, 
          UNRESOLVED_LiH, UNRESOLVED_IIT)
+=======
+  select(FACILITY_UID,
+         SEX, FINE_AGE, DATA_PULL, IMPLEMENTING_PARTNER, STATE, LGA, FACILITY_NAME,
+         ART_TIME, INACTIVE_TIME, INACTIVE_PID, LOST_HMIS, IIT, HMIS_INCOMPLETE_EMR,
+         HMIS_NDR_UNSUCCSSFUL_UPLOAD, HMIS_NDR_DUPLICATES, HMIS_OTHER, HMIS_BLANK,
+         `ART_TIME: < 3 months`, `ART_TIME: + 3 months`, REACHED_Y_RETURN, REACHED_Y_REFUSE,
+         REACHED_Y_DIED, REACHED_Y_TRANSFER, REACHED_Y_NOENTRY, REACHED_Y, REACHED_N,
+         NOT_REACHED_tracking_ongoing, NOT_REACHED_no_phone_address, NOT_REACHED_inaccurate_phone_address,
+         NOT_REACHED_no_uid, NOT_REACHED_other, NOT_REACHED_NoEntry, IIT_TRACKED_Y, IIT_TRACKED_N,
+         LiH_New, IIT_New, UNRESOLVED_LiH, UNRESOLVED_IIT
+  )
+
+# Wrote the file here to QC. At this point, dataset is still at patient level
+write.csv(new_inactive_7, file = "test.csv") 
+>>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
 # =================================================== #
 
 
 
 
+<<<<<<< HEAD
 # ==================================================== #
 # ======= Collapse into Facility-Level dataset ======= #
 # ==================================================== #
 
 all <- new_inactive_7 %>%
+=======
+# =================================================== #
+# ======= Collapse into Facility-Level dataset======= #
+# =================================================== #
+
+all <- all %>%
+>>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
   select(INACTIVE_PID:FINE_AGE, DATA_PULL, IMPLEMENTING_PARTNER:INACTIVE_SUBSET,
          `ART_TIME: < 3 months`, `ART_TIME: + 3 months`,
          REACHED_Y_RETURN:REACHED_Y_N, LiH_New, IIT_New, 
