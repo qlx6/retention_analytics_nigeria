@@ -6,7 +6,7 @@
 # --------->> & tranformation into the R2R dashboard dataset
 # --------- To be run on only recieved reports from partners
 # -- CREATION DATE: 11/23/2021
-
+# ===March 23rd, 2022 Update
 
 # = Libraries ============== #
 # ========================== #
@@ -29,88 +29,30 @@ rm(list = ls())
 date <- Sys.Date()
 time <- Sys.time()
 
-<<<<<<< HEAD
-=======
-
-# - Unprotect Partner reports ------------- #
-# ----------------------------------------- #
-#setwd("C:/Users/qlx6/OneDrive - CDC/Inactive Patient Tracking Dashboard/partner_reports/ccfn/partner_reports_locked")
-
-
-#filename <- "CCFN_LTFUTrackingToolV2_2022-03-07_CCFNreport.xlsx"
-#xl.workbook.open(filename, password = "ccfn7965")
-
-
-# ----------------------------------------- #
-# ----------------------------------------- #
-
-
-
-
-
-
-
-ip <- "CCFN"
-pull <- c("", "", "")
-
-
->>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
 ptm <- proc.time()
 
-<<<<<<< HEAD
-# - Set directory where you the new IP reports are saved - #
+# - Set directory for IP reports - #
 # -------------------------------------------------------- #
 #setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/1_APIN")
 setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/2_CCFN")
 #setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/3_CIHP")
 #setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/4_IHVN")
-
-################################################################################
-################################################################################
-report.list <- list.files(pattern = "*.xlsx")
-ws.list <- lapply(report.list, read_excel)
-ws <- excel_sheets(report.list)
-ws
-
-
-
-report_sheets <- function(fname){
-  sheets <- readxl::excel_sheets()
-  tibble <- lapply(sheets, function(x) readxl::read_excel(fname, sheet = x))
-  data_frame <- lapply(tibble, as.data.frame)
-  names(data_frame) <- sheets
-  print(data_frame)
-}
 ################################################################################
 ################################################################################
 
-
-
-
-
+################################################################################
+################################################################################
 
 all.list <- list.files(pattern = '*.xlsx')
 all.list
 
-=======
-all.list <- list.files(pattern='*.xlsx')
-all.list
-
->>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
 all <- lapply(all.list, function(i){
   x = read_excel(i, sheet = 1)
   x$file = i
   x
 })
-<<<<<<< HEAD
  
 
-=======
-#ccfn[[1]]
-#ccfn[[2]]
-#ccfn[[3]]
-#ccfn[[4]]
->>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
 all <- do.call("rbind.data.frame", all)
 
 
@@ -342,7 +284,7 @@ all$NOT_REACHED_REASON[which(is.na(all$NOT_REACHED_REASON))] <- ""
 
 # ===  Recode LOST_IN_TX CATEGORIES === #
 
-#I changed the name from LITx to LOST_HMIS
+#changed the name from LITx to LOST_HMIS
 all <- all %>%
   mutate(LOST_HMIS = case_when(
     LOST_IN_TX == "Inactive due to duplicate patient records on NDR" ~ 1,
@@ -424,11 +366,20 @@ all <- all %>%
   replace_na(list(`ART_TIME: < 3 months` = 0))
 
 
-#Name changed - replace ">" with "+"
 all <- all %>%
-  mutate(`ART_TIME: + 3 months` = if_else(
-    ART_TIME == "> 3 months", 1, 0)) %>%
-  replace_na(list(`ART_TIME: + 3 months` = 0))
+  mutate(`ART_TIME: 3-6 months` = if_else(
+    ART_TIME == "3-6 months", 1, 0)) %>%
+  replace_na(list(`ART_TIME: 3-6 months` = 0))
+
+all <- all %>%
+  mutate(`ART_TIME: 7-11 months` = if_else(
+    ART_TIME == "7-11 months", 1, 0)) %>%
+  replace_na(list(`ART_TIME: 7-11 months` = 0))
+
+all <- all %>%
+  mutate(`ART_TIME: 12+ months` = if_else(
+    ART_TIME == "12+ months", 1, 0)) %>%
+  replace_na(list(`ART_TIME: 12+ months` = 0))
 
 
 
@@ -587,15 +538,10 @@ d
 # ======= Here is where we incorporate the New_LTFU_LiH to dataset ======= #
 # ======================================================================== #
 
-<<<<<<< HEAD
 # - A comparison between this new and previous --------------------------- #
 # - Change this directory to the directory with the continue_LTFU dataset for the appropriate IP -- #
-setwd("C:/Users/qlx6/OneDrive - CDC/Inactive Patient Tracking Dashboard/partner_reports/ccfn/continued") 
-new_inactive <- read_excel("Continue_LTFU_2022-03-08.xlsx")
-=======
 setwd("C:/Users/qlx6/OneDrive - CDC/Inactive Patient Tracking Dashboard/partner_reports/ccfn/continued")
 new_inactive <- read_excel("Continue_LTFU_2022-01-24 - Copy.xlsx")
->>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
 
 new_inactive_0 <- new_inactive %>% 
   filter(IMPLEMENTING_PARTNER %in% c("CCFN"))
@@ -627,46 +573,22 @@ new_inactive_6 <- new_inactive_5 %>%
       NEW_INACTIVE == 1, 1, 0))
 
 new_inactive_7 <- new_inactive_6 %>% 
-<<<<<<< HEAD
   select(INACTIVE_PID:FINE_AGE, DATA_PULL, IMPLEMENTING_PARTNER:INACTIVE_SUBSET,
-         `ART_TIME: < 3 months`, `ART_TIME: + 3 months`, REACHED_Y_RETURN:REACHED_Y_N, LiH_New, IIT_New, 
+         `ART_TIME: < 3 months`, `ART_TIME: 3-6 months`, `ART_TIME: 7-11 months`,
+         `ART_TIME: 12+ months`, REACHED_Y_RETURN:REACHED_Y_N, LiH_New, IIT_New, 
          UNRESOLVED_LiH, UNRESOLVED_IIT)
-=======
-  select(FACILITY_UID,
-         SEX, FINE_AGE, DATA_PULL, IMPLEMENTING_PARTNER, STATE, LGA, FACILITY_NAME,
-         ART_TIME, INACTIVE_TIME, INACTIVE_PID, LOST_HMIS, IIT, HMIS_INCOMPLETE_EMR,
-         HMIS_NDR_UNSUCCSSFUL_UPLOAD, HMIS_NDR_DUPLICATES, HMIS_OTHER, HMIS_BLANK,
-         `ART_TIME: < 3 months`, `ART_TIME: + 3 months`, REACHED_Y_RETURN, REACHED_Y_REFUSE,
-         REACHED_Y_DIED, REACHED_Y_TRANSFER, REACHED_Y_NOENTRY, REACHED_Y, REACHED_N,
-         NOT_REACHED_tracking_ongoing, NOT_REACHED_no_phone_address, NOT_REACHED_inaccurate_phone_address,
-         NOT_REACHED_no_uid, NOT_REACHED_other, NOT_REACHED_NoEntry, IIT_TRACKED_Y, IIT_TRACKED_N,
-         LiH_New, IIT_New, UNRESOLVED_LiH, UNRESOLVED_IIT
-  )
-
-# Wrote the file here to QC. At this point, dataset is still at patient level
-write.csv(new_inactive_7, file = "test.csv") 
->>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
 # =================================================== #
 
 
 
-
-<<<<<<< HEAD
 # ==================================================== #
 # ======= Collapse into Facility-Level dataset ======= #
 # ==================================================== #
 
 all <- new_inactive_7 %>%
-=======
-# =================================================== #
-# ======= Collapse into Facility-Level dataset======= #
-# =================================================== #
-
-all <- all %>%
->>>>>>> 477464db043cbeb0584bc46dd8e30bbef0c25687
   select(INACTIVE_PID:FINE_AGE, DATA_PULL, IMPLEMENTING_PARTNER:INACTIVE_SUBSET,
-         `ART_TIME: < 3 months`, `ART_TIME: + 3 months`,
-         REACHED_Y_RETURN:REACHED_Y_N, LiH_New, IIT_New, 
+         `ART_TIME: < 3 months`, `ART_TIME: 3-6 months`, `ART_TIME: 7-11 months`,
+         `ART_TIME: 12+ months`, REACHED_Y_RETURN:REACHED_Y_N, LiH_New, IIT_New, 
          UNRESOLVED_LiH, UNRESOLVED_IIT)
 
 all$UNRESOLVED_LiH <- as.numeric(all$UNRESOLVED_LiH)
@@ -683,8 +605,10 @@ all <- all %>%
                    HMIS_NDR_DUPLICATES=sum(HMIS_NDR_DUPLICATES), 
                    HMIS_OTHER=sum(HMIS_OTHER), 
                    HMIS_BLANK=sum(HMIS_BLANK), 
-                   `ART_TIME: < 3 months`=sum(`ART_TIME: < 3 months`), 
-                   `ART_TIME: + 3 months`=sum(`ART_TIME: + 3 months`), 
+                   `ART_TIME: < 3 months`=sum(`ART_TIME: < 3 months`),
+                   `ART_TIME: 3-6 months`=sum(`ART_TIME: 3-6 months`), 
+                   `ART_TIME: 7-11 months`=sum(`ART_TIME: 7-11 months`),
+                   `ART_TIME: 12+ months`=sum(`ART_TIME: 12+ months`),
                    REACHED_Y_RETURN=sum(REACHED_Y_RETURN), 
                    REACHED_Y_REFUSE=sum(REACHED_Y_REFUSE), 
                    REACHED_Y_DIED=sum(REACHED_Y_DIED),
@@ -707,9 +631,8 @@ all <- all %>%
 
 ##############################################################################
 
-# === Append and Write data set === #
-setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/FINAL_R2R_DATASET/apin_r2r")
-#setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/FINAL_R2R_DATASET/ccfn_r2r")
+#setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/FINAL_R2R_DATASET/apin_r2r")
+setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/FINAL_R2R_DATASET/ccfn_r2r")
 #setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/FINAL_R2R_DATASET/cihp_r2r")
 #setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/FINAL_R2R_DATASET/ihvn_r2r")
 
@@ -719,3 +642,4 @@ proc.time() - ptm
 
 # ------------------------ END ----------------------------------- #
 # ---------------------------------------------------------------- #
+
