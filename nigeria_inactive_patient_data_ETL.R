@@ -33,8 +33,8 @@ ptm <- proc.time()
 
 # - Set directory for IP reports - #
 # -------------------------------------------------------- #
-#setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/1_APIN")
-setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/2_CCFN")
+setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/1_APIN")
+#setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/2_CCFN")
 #setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/3_CIHP")
 #setwd("C:/Users/qlx6/OneDrive - CDC/general dynamics - icpi/GitHub/retention_analytics_nigeria/Nigeria_R2R_Transformation/4_IHVN")
 ################################################################################
@@ -58,8 +58,8 @@ all <- do.call("rbind.data.frame", all)
 
 # ==== Switch vector here ==== #
 ################################
-all$NDR_PID <- na.omit(all$NDR_PID) # remove rows with NA in NDR_PID
 
+# all$NDR_PID <- na.omit(all$NDR_PID) # remove rows with NA in NDR_PID
 
 # ==== Clean leading and trailing white spaces ==== #
 all <- data.frame(lapply(all, trimws))
